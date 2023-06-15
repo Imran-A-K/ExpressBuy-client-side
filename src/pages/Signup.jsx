@@ -2,28 +2,16 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import RegisterImg from "../assets/Login/enter-login-password-registration-page-screen-sign-your-account-creative-metaphor_566886-2871.jpg";
 import { useState } from "react";
 import { AiFillEyeInvisible, AiFillEye } from "react-icons/ai";
-import { BsFillShieldLockFill, BsTelephoneFill } from "react-icons/bs";
-import { CgSpinner } from "react-icons/cg";
-import OtpInput from "otp-input-react";
-import PhoneInput from "react-phone-input-2";
 import { useForm } from "react-hook-form";
 import { BiError } from "react-icons/bi";
 import Swal from "sweetalert2";
 import useAuthentication from "../hooks/useAuthentication";
 import axios from "axios";
-import "react-phone-input-2/lib/style.css";
-import { RecaptchaVerifier } from "firebase/auth";
-import { toast } from "react-hot-toast";
+import { CgSpinner } from "react-icons/cg";
 
-const Register = () => {
+const SignUp = () => {
   const [firebaseError, setFirebaseError] = useState("");
-  const [otp, setOtp] = useState("");
-  const [phoneNumber, setPhoneNumber] = useState("");
-  const [loadingOtp, setLoadingOtp] = useState(false);
-  const [showOTP, setShowOTP] = useState(false);
-  const [user, setUser] = useState(null);
-  const [info, setInfo] = useState({})
-  const { registerUser, updateUserProfile, googleSignIn, logOut,phoneSignIn,updateUserEmail,updateUserPassword,auth } =
+  const { registerUser, updateUserProfile, googleSignIn, logOut } =
     useAuthentication();
   const navigate = useNavigate();
   const location = useLocation();
@@ -36,134 +24,56 @@ const Register = () => {
     criteriaMode: "all",
   });
   const to = location.state?.from?.from?.pathname || "/";
+  const onSubmit = (data) => {
+    setRegistering(true)
+    setFirebaseError("");
+    data.role = "customer";
+    // console.log(data);
+    registerUser(data.email, data.password)
+      .then((result) => {
+        // const registeredUser = result.user;
+        updateUserProfile(data.name).then(async () => {
+          await axios
+            .post(`http://localhost:5000/register-new-user`, {
+              name: data.name,
+              email: data.email,
+              
+              role: "customer",
+            })
+            .then((response) => {
+              console.log(response);
+            });
 
-  const onCaptchVerify =() => {
-    if (!window.recaptchaVerifier) {
-      window.recaptchaVerifier = new RecaptchaVerifier(
-        "recaptcha-container",
-        {
-          size: "invisible",
-          callback: (response) => {
-            // onSignup();
-          },
-          "expired-callback": () => {},
-        },
-        auth
-      );
-    }
-  }
+          await Swal.fire({
+            position: "top",
+            icon: "success",
+            title:
+              "Your account has been created successfully please login to continue",
+            showConfirmButton: false,
+            timer: 1500,
+          });
 
-  const onSignup = () => {
-    
-    setLoadingOtp(true);
-    onCaptchVerify();
-
-    const appVerifier = window.recaptchaVerifier;
-    phoneSignIn(phoneNumber, appVerifier)
-    .then((confirmationResult) => {
-      window.confirmationResult = confirmationResult;
-      setLoadingOtp(false);
-      setShowOTP(true);
-      toast.success("OTP sended successfully!");
-    })
-    .catch((error) => {
-      console.log(error);
-      setLoadingOtp(false);
-    });
-  }
-
-  const onOTPVerify = () => {
-    setLoadingOtp(true);
-    window.confirmationResult
-      .confirm(otp)
-      .then(async () => {
-
-        console.log(info)
-        updateUserPassword(info.password)
-       
-         try{
-          // await updateUserEmail(info.email)
-          // await new Promise((resolve) => setTimeout(resolve, 500));
-      //  await updateUserProfile(info.name)
-      //  await new Promise((resolve) => setTimeout(resolve, 500));
-      updateUserPassword(info.password)
-         }
-         catch(error){
-          console.log(error)
-         } 
-         logOut()
+          logOut()
             .then()
             .catch((error) => {
               console.log(error.message);
             });
-
-          navigate("/login")
-
-        setLoadingOtp(false);
+            setRegistering(false)
+          navigate("/login");
+        });
       })
       .catch((error) => {
+        // console.log(error.message)
         if (error.message.includes("auth/email-already-in-use")) {
           setFirebaseError(
             "Your account was previously registered. Please login to continue"
           );
-        return
+          setRegistering(false)
+          return
         }
-        setFirebaseError(error.message)
-        setLoadingOtp(false);
+        setRegistering(false)
+
       });
-  }
-  const onSubmit = (data) => {
-    setFirebaseError("");
-    if(!phoneNumber){
-      setFirebaseError("Please enter phone number")
-      return
-    }
-    
-    const info = { name: data.name, email: data.email, phone: ("+" + phoneNumber), role: "customer", password: data.password }
-    setInfo({...info})
-    onSignup();
-    return
-    
-    // registerUser(data.email, data.password)
-    //   .then((result) => {
-    //     // const registeredUser = result.user;
-    //     updateUserProfile(data.name).then(async () => {
-    //       await axios
-    //         .post(`http://localhost:5000/register-new-user`, {
-    //           name: data.name,
-    //           email: data.email,
-    //           role: "student",
-    //         })
-    //         .then((response) => {
-    //           console.log(response);
-    //         });
-
-    //       await Swal.fire({
-    //         position: "top",
-    //         icon: "success",
-    //         title:
-    //           "Your account has been created successfully please login to continue",
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //       });
-
-    //       logOut()
-    //         .then()
-    //         .catch((error) => {
-    //           console.log(error.message);
-    //         });
-
-    //       navigate("/login");
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     // console.log(error.message)
-    //     if (error.message.includes("auth/email-already-in-use")) {
-    //       setFirebaseError(
-    //         "Your account was previously registered. Please login to continue"
-    //       );
-    //     }
-    //   });
   };
   const signUpWithGoogle = () => {
     googleSignIn()
@@ -188,10 +98,10 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showPassConfirm, setShowPassConfirm] = useState(false);
   const password = watch("password");
+  const [registering, setRegistering] = useState(false);
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
-      <div id="recaptcha-container"></div>
       <div className="max-w-screen-xl m-0 sm:m-20 bg-white shadow sm:rounded-lg flex flex-row-reverse justify-center flex-1">
         <div className="lg:w-1/2 xl:w-5/12 p-6 sm:p-12">
           <div className="mt-12 flex flex-col items-center">
@@ -233,7 +143,7 @@ const Register = () => {
 
               <div className="my-12 border-b text-center">
                 <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                  Or sign up with email and phone number
+                  Or sign up with email
                 </div>
               </div>
               <div className="text-center mb-4">
@@ -292,7 +202,7 @@ const Register = () => {
                     placeholder="Password"
                     {...register("password", {
                       required: "Password is required.",
-                     
+                      
                       validate: (value) => {
                         const hasSpecialCharacter =
                           /^(?=.*[!@#$%^&*()_\-+=|\\[\]{};:'",.<>\/?]).*$/.test(
@@ -336,7 +246,7 @@ const Register = () => {
                     </p>
                   ) : null}
 
-                  
+                  {/* {console.log(errors.password)} */}
                 </div>
 
                 <div className="relative">
@@ -372,53 +282,9 @@ const Register = () => {
                     </p>
                   ) : null}
                 </div>
-                <>
                 
-               
-                <div className="mt-4 my-4">
-                <PhoneInput country={"bd"}
-               required
-                value={phoneNumber} onChange={setPhoneNumber} />
-                </div>
-                
-              </>
-                {
-
-showOTP ? (
-  <>
-    <div className="bg-white text-indigo-500 w-fit mx-auto p-4 rounded-full">
-      <BsFillShieldLockFill size={30} />
-    </div>
-    <label
-      htmlFor="otp"
-      className="font-bold text-xl text-slate-900 text-center"
-    >
-      Enter your OTP
-    </label>
-   <div className="mt-2">
-   <OtpInput
-      value={otp}
-      onChange={setOtp}
-      OTPLength={6}
-      otpType="number"
-      disabled={false}
-      autoFocus
-      className="opt-container "
-    ></OtpInput>
-   </div>
-    <button
-      onClick={onOTPVerify}
-      className="mt-5 tracking-wide font-semibold bg-blue-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none"
-    >
-      {loadingOtp && (
-        <CgSpinner size={20} className="mt-1 animate-spin" />
-      )}
-      <span>Verify OTP</span>
-    </button>
-  </>
-) : <button className="mt-5 tracking-wide font-semibold bg-violet-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none">
-                  
-{loadingOtp ? (
+                <button className="mt-5 tracking-wide font-semibold bg-violet-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none">
+                {registering ? (
     <CgSpinner size={20} className="mt-1 animate-spin" />)
   : 
   <svg
@@ -432,15 +298,10 @@ showOTP ? (
     <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
     <circle cx="8.5" cy="7" r="4" />
     <path d="M20 8v6M23 11h-6" />
-  </svg>
+  </svg>}
 
-}
-  <span className="ml-3">Sign Up</span>
-</button>
-
-                }
-
-                
+                  <span className="ml-3">Sign Up</span>
+                </button>
                 <p className="mt-6 text-base text-gray-600 text-center font-semibold">
                   Already have an account?{" "}
                   <Link to="/login" className=" text-violet-600 font-bold">
@@ -462,4 +323,5 @@ showOTP ? (
   );
 };
 
-export default Register;
+export default SignUp;
+
