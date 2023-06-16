@@ -12,3 +12,27 @@
   .opt-container input {
     @apply !mr-0 flex-1 py-5 outline-none bg-blue-50;
   }
+  .actiVatedTab{
+    @apply font-semibold tracking-wide text-blue-500 transition-colors text-2xl duration-500 hover:text-fuchsia-500
+  }
+  
+  .defaultTab{
+    @apply font-medium duration-500 tracking-wide text-gray-700 transition-colors  text-2xl hover:text-pink-500
+  }
+  .navbar-btn{
+    @apply max-sm:hidden active:scale-[.98] active:duration-100 w-40 transform py-3 transition-all hover:scale-[1.01]  ease-in-out bg-black rounded-xl text-white font-bold text-lg
+  }
+  .navbar-logOut-btn{
+    @apply hidden text-lg lg:block active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] mr-4 w-40 py-4 bg-black rounded-xl text-white font-bold
+  }
+  .links {
+    @apply p-2.5 flex rounded-md gap-6 items-center md:cursor-pointer cursor-default duration-300 font-semibold;
+  }
+  
+  .active {
+    @apply bg-blue-100 text-blue-600;
+  }
+
+  .clip-path {
+    clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
+  }  
