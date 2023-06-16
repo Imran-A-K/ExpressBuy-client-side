@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import image from '../../assets/Images/hero.png';
+import Heromage from '../../assets/Images/hero.png';
 const Hero = () => {
   return (
     <>
@@ -16,9 +16,9 @@ const Hero = () => {
         </div>
         <div className='flex items-center'>
           <img
-            src={image}
+            src={Heromage}
             
-            className='w-auto h-[45vh] lg:h-[35vh] md:h-[31vh] sm:h-[21vh] xsm:h-[19vh] transition-all duration-700 ease-in-out -rotate-[15deg] hover:rotate-0 cursor-pointer object-fill'
+            className='w-auto h-[23vh] lg:h-[35vh] md:h-[31vh] sm:h-[21vh]  transition-all duration-700 ease-in-out -rotate-[15deg] hover:rotate-0 cursor-pointer object-fill'
           />
         </div>
       </div>

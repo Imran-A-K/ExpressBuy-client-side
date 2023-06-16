@@ -30,6 +30,7 @@ const Navbar = () => {
   // const [userRole] = useRoleGetter()
   const isStudent =true;
   const isAdmin = true
+  // const isInstructor = true
   const cart = 0
  
   // console.log(isStudent)
@@ -52,7 +53,7 @@ const Navbar = () => {
           <AiOutlineMenu size={30} />
         </div>
         <h1 className="text-2xl max-sm:flex max-sm:text-xl sm:text-3xl lg:text-3xl md:px-2">
-          Express <span className="font-bold text-violet-600">Ninja</span>
+          Express <span className="font-bold text-violet-600">Buy</span>
         </h1>
         
       
@@ -113,7 +114,7 @@ const Navbar = () => {
                 }
                 to="/student-dashboard/my-selected-classes"
               >
-                <button className="btn gap-2">
+                <button className="btn bg-slate-100 gap-2">
 <FaShoppingCart></FaShoppingCart>
   <div className="badge badge-secondary">+{cart?.length || 0}</div>
 </button>
@@ -181,17 +182,7 @@ const Navbar = () => {
                 <HiHome size={25} className="mr-4" /> Home
               </li>
             </NavLink>
-            <NavLink
-              className={({ isActive }) =>
-                isActive ? "actiVatedTab" : "defaultTab"
-              }
-              to="/instructors"
-              onClick={() => setNav(!nav)}
-            >
-              <li className="text-xl py-4 flex">
-                <FaChalkboardTeacher size={25} className="mr-4" /> Instructors
-              </li>
-            </NavLink>
+            
             <NavLink
               className={({ isActive }) =>
                 isActive ? "actiVatedTab" : "defaultTab"
