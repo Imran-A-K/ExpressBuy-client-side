@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-const useGetProducts = () => {
-    const { refetch, data : allProducts = [] } = useQuery({
-        queryKey: ['all-products'],
+const useGetTotalProducts = () => {
+    const { refetch, data : totalProducts = [] } = useQuery({
+        queryKey: ['total-products'],
         queryFn: async () => {
-            const response = await axios.get(`http://localhost:4000/products`)
-            return response.data;
+            const response = await axios.get(`http://localhost:4000/totalProducts`)
+            return response.data.totalProducts;
           }
           
     })
-    return [allProducts, refetch]
+    return [totalProducts, refetch]
 }
 
-export default useGetProducts
+export default useGetTotalProducts
