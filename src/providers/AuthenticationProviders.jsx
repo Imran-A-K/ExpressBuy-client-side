@@ -50,7 +50,7 @@ const AuthenticationProviders = ({ children }) => {
         setUser(currentUser)
         
       if(currentUser){
-        await axios.post('http://localhost:5000/jwt', { email: currentUser.email })
+        await axios.post('http://localhost:4000/jwt', { email: currentUser.email })
         .then(data => {
           localStorage.setItem('access-token', data.data.token)
           setQueryEnabler(true)

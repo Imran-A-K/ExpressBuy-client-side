@@ -129,7 +129,7 @@ const Register = () => {
     //     // const registeredUser = result.user;
     //     updateUserProfile(data.name).then(async () => {
     //       await axios
-    //         .post(`http://localhost:5000/register-new-user`, {
+    //         .post(`http://localhost:4000/register-new-user`, {
     //           name: data.name,
     //           email: data.email,
     //           role: "student",
@@ -170,7 +170,7 @@ const Register = () => {
       .then(async (result) => {
         const registeredUser = result.user;
         await axios
-          .post(`http://localhost:5000/register-new-user`, {
+          .post(`http://localhost:4000/register-new-user`, {
             name: registeredUser.displayName,
             email: registeredUser.email,
             photoUrl: registeredUser.photoURL,
