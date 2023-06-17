@@ -9,7 +9,7 @@ import useAuthentication from '../../../../hooks/useAuthentication';
 
 const Cart = () => {
   const [cart, refetch] =useCart()
-  // console.log(cart)
+  console.log(cart)
   const {user} = useAuthentication();
   const [ cartDetails, reload] = useTotalCartPrice()
   const [axiosBase] = useAxiosInterceptor(); 
@@ -73,6 +73,19 @@ const Cart = () => {
     }) 
   }
   const confirmOrder = () => {
+    const customerOrder ={email: user?.email,
+     name: user?.displayName,
+      date: new Date(),
+      totalPrice : cartDetails.totalPrice,
+      totalShipping: cartDetails.totalShipping,
+      totalItems: cartDetails.totalProducts,
+      cartItems: cart.map(item => item.productId),
+      itemNames: cart.map(item => item.productName),
+      itemPrice: cart.map(item =>item.price),
+      itemShipping: cart.map(item => item.shipping),
+      status : "service pending"  
+
+      }
     Swal.fire({
       title: 'Confirm Order?',
       text: "Your order will be confirmed!",
@@ -83,7 +96,7 @@ const Cart = () => {
       confirmButtonText: 'Yes, I am sure!'
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosBase.post(`http://localhost:4000/confirm-order?customerEmail=${user?.email}`)
+        axiosBase.post(`http://localhost:4000/confirm-order?customerEmail=${user?.email}`,customerOrder)
         .then(async(response) => {
           if(response.data.insertedCount>0){
           await Swal.fire(
