@@ -11,6 +11,12 @@ import PrivateRoute from "./PrivateRoute";
 import UserDashBoard from "../Layout/UserDashBoard";
 import Cart from "../pages/Dashboard/User/Cart/Cart";
 import MyOrders from "../pages/Dashboard/User/MyOrders/MyOrders";
+import AdminDashBoard from "../Layout/AdminDashBoard";
+import AdminStats from "../pages/Dashboard/Admin/Overview/AdminStats";
+import Orders from "../pages/Dashboard/Admin/Orders/Orders";
+import AddProduct from "../pages/Dashboard/Admin/AddProduct/AddProduct";
+import ProductList from "../pages/Dashboard/Admin/ProductList/ProductList";
+import Users from "../pages/Dashboard/Admin/Users/Users";
 
 
 export const router = createBrowserRouter([
@@ -71,5 +77,38 @@ export const router = createBrowserRouter([
             
         ]
     },
+    
+        {
+            path: '/admin-dashboard',
+            element: <PrivateRoute>
+    
+                    <AdminDashBoard></AdminDashBoard>
+                    
+                    </PrivateRoute>,
+            errorElement: <ErrorPage />,
+            children: [
+                {
+                    path: 'overview',
+                    element: <AdminStats />
+                },
+                {
+                    path: 'orders',
+                    element: <Orders />
+                },
+                {
+                    path: 'add-a-product',
+                    element: <AddProduct />
+                },
+                {
+                    path: 'product-list',
+                    element: <ProductList />
+                },
+                {
+                    path: 'users',
+                    element: <Users />
+                }   
+            ]
+        }
+    
    
 ])

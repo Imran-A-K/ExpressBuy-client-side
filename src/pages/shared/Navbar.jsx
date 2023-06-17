@@ -8,6 +8,7 @@ import {
 import {
   FaChalkboard,
   FaChalkboardTeacher,
+  FaFlipboard,
   FaListAlt,
   FaShoppingCart,
   FaUserAltSlash,
@@ -112,26 +113,20 @@ const Navbar = () => {
                 className={({ isActive }) =>
                   isActive ? "actiVatedTab" : "defaultTab"
                 }
-                to="/admin-dashboard/manage-users"
+                to="/admin-dashboard/users"
               >
-                Dashboard
+                <button  className="btn bg-slate-100 gap-2">
+Admin
+  <div className="badge badge-secondary"><FaFlipboard></FaFlipboard></div>
+</button>
               </NavLink>
+              
             </li>
           )}
           
           {userRole !=='admin' && (
             <li>
-              {/* <NavLink
-                className={({ isActive }) =>
-                  isActive ? "actiVatedTab" : "defaultTab"
-                }
-                to="/student-dashboard/my-selected-classes"
-              >
-                <button className="btn bg-slate-100 gap-2">
-<FaShoppingCart></FaShoppingCart>
-  <div className="badge badge-secondary">+{cart?.length || 0}</div>
-</button>
-              </NavLink> */}
+              
               <button onClick={handleCartNav} className="btn bg-slate-100 gap-2">
 <FaShoppingCart></FaShoppingCart>
   <div className="badge badge-secondary">+{cart?.length || 0}</div>
