@@ -6,14 +6,13 @@ const useCart = () => {
   const { user, queryEnabler } = useAuthentication()
   const [axiosBase] = useAxiosInterceptor(); // calling the custom hook with axios interceptor
   // here i have changed the name of the data field by destructuring and set it as cart for useQuery
-  const queryClient = useQueryClient(); 
   const { refetch,data: cart = []} = useQuery({
    
     queryKey: ['carts', user?.mail],
     enabled: queryEnabler,                      
     queryFn: async () => {
       const response = await axiosBase(`/carts?email=${user?.email}`)
-      console.log(response)
+      // console.log(response)
       return response.data;
     },
   })

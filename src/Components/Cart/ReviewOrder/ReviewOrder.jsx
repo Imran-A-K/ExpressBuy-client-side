@@ -10,7 +10,7 @@ const ReviewOrder= ({product,handleRemoveFromCart}) => {
           <p className="font-semibold mx-[15px] leading-25 tracking-tighter">Price: <span className='text-indigo-500'>${price}</span></p>
           
         </div>
-        <button onClick={() => handleRemoveFromCart(_id)} className='btn btn-md bg-red-500 hover:bg-red-300'>
+        <button onClick={() => handleRemoveFromCart(_id)} className='btn btn-md bg-red-500 hover:bg-red-600 hover:text-white'>
           <FaTrashAlt />
         </button>
       </div>

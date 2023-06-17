@@ -1,4 +1,4 @@
-import { FaCalendarAlt, FaHome, FaShoppingCart, FaWallet,FaShopify } from "react-icons/fa"
+import { FaCalendarAlt, FaHome, FaShoppingCart, FaWallet,FaShopify, FaOpencart } from "react-icons/fa"
 import { NavLink, Outlet } from "react-router-dom"
 import useCart from "../hooks/useCart";
 
@@ -18,7 +18,7 @@ const UserDashBoard = () => {
     <ul className="menu bg-blue-400 font-semibold text-xl p-4 w-80 h-full">
       
     
-        <li className="pt-10 "><NavLink to="/user-dashboard/my-orders"><FaHome></FaHome> Orders</NavLink></li>
+        <li className="pt-10 "><NavLink to="/user-dashboard/my-orders"><FaOpencart></FaOpencart> Orders</NavLink></li>
       
       <li>
         <NavLink to="/user-dashboard/my-cart"><FaShoppingCart></FaShoppingCart> My Cart
