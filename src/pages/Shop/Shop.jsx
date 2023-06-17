@@ -25,7 +25,7 @@ const Shop = () => {
   };
 
   const [products, setProducts] = useState([]);
-console.log(products)
+// console.log(products)
  
 
   //  useEffect for loading data for per page with query
