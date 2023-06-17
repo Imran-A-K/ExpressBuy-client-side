@@ -16,10 +16,13 @@ import {
   FaUserPlus,
  
 } from "react-icons/fa";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { HiHome } from "react-icons/hi";
 
 import useAuthentication from "../../hooks/useAuthentication";
+import useCart from "../../hooks/useCart";
+import useRoleGetter from "../../hooks/useRoleGetter";
+import Swal from "sweetalert2";
 
 
 const Navbar = () => {
@@ -27,20 +30,30 @@ const Navbar = () => {
   
 
   const { user, logOut, nav, setNav } = useAuthentication();
-  // const [userRole] = useRoleGetter()
+  const [ cart,refetch] = useCart() 
+  const [userRole] = useRoleGetter()
+  const navigate = useNavigate();
+  let isCustomer;
   const isStudent =true;
+  if(userRole === "customer"){
+    isCustomer = true
+  }
+
   const isAdmin = true
-  // const isInstructor = true
-  const cart = 0
- 
-  // console.log(isStudent)
-  // console.log(userRole)
+  const handleCartNav = () => {
+    if(!user){
+      Swal.fire("Please login or register for viewing Cart ")
+      return
+    }
+    navigate('/user-dashboard/my-cart')
+  }
   const signOutHandler = () => {
     logOut()
       .then()
       .catch((error) => {
         console.log(error.message);
       });
+      
   };
   return (
     //bg-[#f1f4f7]
@@ -106,9 +119,9 @@ const Navbar = () => {
             </li>
           )}
           
-          {user && isStudent &&(
+          {userRole !=='admin' && (
             <li>
-              <NavLink
+              {/* <NavLink
                 className={({ isActive }) =>
                   isActive ? "actiVatedTab" : "defaultTab"
                 }
@@ -118,8 +131,11 @@ const Navbar = () => {
 <FaShoppingCart></FaShoppingCart>
   <div className="badge badge-secondary">+{cart?.length || 0}</div>
 </button>
-              </NavLink>
-              
+              </NavLink> */}
+              <button onClick={handleCartNav} className="btn bg-slate-100 gap-2">
+<FaShoppingCart></FaShoppingCart>
+  <div className="badge badge-secondary">+{cart?.length || 0}</div>
+</button>
             </li>
           )}
         </ul>

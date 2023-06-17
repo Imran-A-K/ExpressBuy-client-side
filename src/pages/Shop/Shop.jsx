@@ -4,11 +4,13 @@ import ProductCard from '../../Components/Shop/ProductCard';
 import useAuthentication from '../../hooks/useAuthentication';
 import Swal from 'sweetalert2';
 import useAxiosInterceptor from '../../hooks/useAxiosInterceptor';
+import useCart from '../../hooks/useCart';
 
 const Shop = () => {
-  const [totalProducts, refetch] = useGetTotalProducts();
+  const [totalProducts] = useGetTotalProducts();
   const { user} = useAuthentication()
   const [axiosBase] = useAxiosInterceptor()
+  const [ cart,refetch] = useCart() 
   // console.log(user)
   // console.log(totalProducts)
   const [itemsPerPage, setItemsPerPage] = useState(10);
@@ -58,6 +60,7 @@ console.log(products)
     .then(response => {
   
         if(response.data.insertedId){
+          refetch()
             Swal.fire({
                 title: 'Your product has been added to cart successfully please go to Cart to review order',
                 showClass: {

@@ -27,6 +27,7 @@ const AuthenticationProviders = ({ children }) => {
     return signOut(auth);
   }
   const updateUserProfile = (name) => {
+    setLoading(true);
    return updateProfile(auth.currentUser, {
       displayName: name
     });
@@ -37,12 +38,15 @@ const AuthenticationProviders = ({ children }) => {
     return signInWithPhoneNumber(auth, formattedPhoneNumber, appVerifier)
   }
   const googleSignIn =  () => {
+    setLoading(true);
     return signInWithPopup(auth, googleProvider);
   } 
   const updateUserEmail = (email) => {
+    setLoading(true);
     updateEmail(auth.currentUser, email)
   }
   const updateUserPassword = (password) => {
+    setLoading(true);
     updatePassword(auth.currentUser, password)
   }
   useEffect(() => {

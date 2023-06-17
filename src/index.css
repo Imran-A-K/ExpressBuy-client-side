@@ -33,6 +33,12 @@
     @apply bg-blue-100 text-blue-600;
   }
 
+  .drawer-side a.active {
+    color: white;
+  }
+  .drawer-side a {
+    background-color: transparent;
+  }
   .clip-path {
     clip-path: polygon(0 0, 100% 0, 100% 65%, 0 100%);
   }  
