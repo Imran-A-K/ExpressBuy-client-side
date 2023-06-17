@@ -11,8 +11,11 @@ import { CgSpinner } from "react-icons/cg";
 
 const SignUp = () => {
   const [firebaseError, setFirebaseError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassConfirm, setShowPassConfirm] = useState(false);
+  const [registering, setRegistering] = useState(false);
   const { registerUser, updateUserProfile, googleSignIn, logOut } =
-    useAuthentication();
+  useAuthentication();
   const navigate = useNavigate();
   const location = useLocation();
   const {
@@ -23,6 +26,7 @@ const SignUp = () => {
   } = useForm({
     criteriaMode: "all",
   });
+  const password = watch("password");
   const to = location.state?.from?.from?.pathname || "/";
   const onSubmit = (data) => {
     setRegistering(true)
@@ -95,10 +99,7 @@ const SignUp = () => {
         console.log("error", error.message);
       });
   };
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassConfirm, setShowPassConfirm] = useState(false);
-  const password = watch("password");
-  const [registering, setRegistering] = useState(false);
+  
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
@@ -143,7 +144,7 @@ const SignUp = () => {
 
               <div className="my-12 border-b text-center">
                 <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                  Or sign up with email
+                  Or sign up manually
                 </div>
               </div>
               <div className="text-center mb-4">

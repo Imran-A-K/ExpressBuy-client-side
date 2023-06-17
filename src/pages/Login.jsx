@@ -1,3 +1,5 @@
+
+
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import loginImg from '../assets/Login/enter-login-password-registration-page-screen-sign-your-account-creative-metaphor_566886-2871.jpg'
 import { useState } from 'react'
@@ -6,13 +8,12 @@ import { useForm } from "react-hook-form";
 import { BiError } from 'react-icons/bi';
 import Swal from 'sweetalert2';
 import useAuthentication from '../hooks/useAuthentication';
-import { CgSpinner } from 'react-icons/cg';
+import axios from 'axios';
 
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
   const [ firebaseError, setFirebaseError ] = useState("")
-  const [logingIn,setLogingIn ] = useState(false)
   const navigate = useNavigate();
   const location = useLocation();
   const { signIn,
@@ -27,7 +28,6 @@ const Login = () => {
   const from = location.state?.from?.pathname || "/";
 
   const onSubmit = data => {
-    setLogingIn(true)
     setFirebaseError("")
     // console.log(data)
     signIn(data.email, data.password)
@@ -41,7 +41,6 @@ const Login = () => {
         showConfirmButton: false,
         timer: 1500
       })
-      setLogingIn(false)
       navigate(from, { replace : true});
     })
     .catch((error) => {
@@ -50,19 +49,29 @@ const Login = () => {
         setFirebaseError(
           "We couldn't locate your account! Please double-check the accuracy of your email address. If this is your first time here, please register."
         );
-        setLogingIn(false)
       } else if (error.message.includes("wrong-password")) {
         setFirebaseError("Incorrect Password! Please Enter your password correctly");
-        setLogingIn(false)
       }
-      setLogingIn(false)
     });
   };
   const signInwithGoogle = () => {
     googleSignIn()
-      .then((result) => {
+      .then(async(result) => {
         const googleUser = result.user;
-        navigate(from, { replace: true });
+        
+      
+        await axios
+          .post(`http://localhost:4000/register-new-user`, {
+            name: googleUser.displayName,
+            email: googleUser.email,
+            role: "customer",
+            phone: googleUser.phoneNumber ? googleUser.phoneNumber : ""
+
+          })
+          .then((response) => {
+            console.log(response);
+            navigate(from, { replace: true });
+          });
       })
       .catch((error) => {
         console.log("error", error.message);
@@ -161,7 +170,7 @@ const Login = () => {
                 })}
                 aria-invalid={errors.password ? "true" : "false"}
               />
-              <div className='cursor-pointer text-2xl absolute right-3 top-4 z-10'>
+              <div className='cursor-pointer text-2xl absolute right-3 top-9 z-10'>
                       {
                           (showPassword === false)? <AiFillEye onClick={() => setShowPassword(!showPassword)}/>:
                           <AiFillEyeInvisible onClick={() =>setShowPassword(!showPassword)}/>
@@ -182,21 +191,18 @@ const Login = () => {
               <button 
                 className="mt-5 tracking-wide font-semibold bg-violet-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none"
               >
-                {logingIn ? (
-    <CgSpinner size={20} className="mt-1 animate-spin" />)
-  : 
-  <svg
-    className="w-6 h-6 -ml-2"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-    <circle cx="8.5" cy="7" r="4" />
-    <path d="M20 8v6M23 11h-6" />
-  </svg>}
+                <svg
+                  className="w-6 h-6 -ml-2"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                  <circle cx="8.5" cy="7" r="4" />
+                  <path d="M20 8v6M23 11h-6" />
+                </svg>
                 <span className="ml-3">
                   Sign In
                 </span>
@@ -204,7 +210,7 @@ const Login = () => {
               <p className="mt-6 text-base text-gray-600 text-center font-semibold">
                 Don&apos;t have an account?
               { " "}
-                <Link to="/signup" className=" text-violet-600 font-bold">
+                <Link to="/register" className=" text-violet-600 font-bold">
                 Register
                 </Link>
                 

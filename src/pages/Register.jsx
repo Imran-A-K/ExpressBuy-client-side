@@ -20,10 +20,14 @@ const Register = () => {
   const [otp, setOtp] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [loadingOtp, setLoadingOtp] = useState(false);
-  const [showOTP, setShowOTP] = useState(false);
-  const [user, setUser] = useState(null);
+  const [showOTPInput, setShowOTPInput] = useState(false);
+  
   const [info, setInfo] = useState({})
-  const { registerUser, updateUserProfile, googleSignIn, logOut,phoneSignIn,updateUserEmail,updateUserPassword,auth } =
+
+  const [landing, setLanding] = useState(true)
+  const [phoneVerify, setPhoneVerify] = useState(false)
+
+  const { registerUser, googleSignIn, logOut,phoneSignIn,updateUserProfile,auth } =
     useAuthentication();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,16 +39,21 @@ const Register = () => {
   } = useForm({
     criteriaMode: "all",
   });
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassConfirm, setShowPassConfirm] = useState(false);
+  const password = watch("password");
   const to = location.state?.from?.from?.pathname || "/";
 
-  const onCaptchVerify =() => {
+ 
+
+  const onCaptchVerify =()=> {
     if (!window.recaptchaVerifier) {
       window.recaptchaVerifier = new RecaptchaVerifier(
         "recaptcha-container",
         {
           size: "invisible",
           callback: (response) => {
-            // onSignup();
+            onSignup();
           },
           "expired-callback": () => {},
         },
@@ -53,128 +62,154 @@ const Register = () => {
     }
   }
 
-  const onSignup = () => {
+  const onSignup = ()=> {
     
     setLoadingOtp(true);
     onCaptchVerify();
 
     const appVerifier = window.recaptchaVerifier;
+
+
     phoneSignIn(phoneNumber, appVerifier)
     .then((confirmationResult) => {
       window.confirmationResult = confirmationResult;
       setLoadingOtp(false);
-      setShowOTP(true);
+      setShowOTPInput(true);
+      setPhoneVerify(false)
+      
       toast.success("OTP sended successfully!");
+      
     })
     .catch((error) => {
       console.log(error);
       setLoadingOtp(false);
+      setShowOTPInput(false);
+      if(error.message.includes('captcha')){
+        return
+      }
+      setLanding(true)
+      
+      if(
+        error.message.includes('too-many-requests')
+      ){
+        return
+      }
+setFirebaseError(error.message)
+      
     });
+
   }
 
-  const onOTPVerify = () => {
+  const onOTPVerify =() => {
+    setLanding(false)
     setLoadingOtp(true);
     window.confirmationResult
       .confirm(otp)
-      .then(async () => {
-
-        console.log(info)
-        updateUserPassword(info.password)
-       
-         try{
-          // await updateUserEmail(info.email)
-          // await new Promise((resolve) => setTimeout(resolve, 500));
-      //  await updateUserProfile(info.name)
-      //  await new Promise((resolve) => setTimeout(resolve, 500));
-      updateUserPassword(info.password)
-         }
-         catch(error){
-          console.log(error)
-         } 
-         logOut()
-            .then()
-            .catch((error) => {
-              console.log(error.message);
+      .then(async (res) => {
+        console.log(res);
+        // setUser(res.user);
+        setShowOTPInput(false)
+        setLoadingOtp(false);
+        
+        
+        toast.success("OTP verified successfully!");
+        await axios
+            .post(`http://localhost:4000/register-new-user`, {
+              name: info.name,
+              email: info.email,
+              role: info.role,
+              phone: info.phone,
+              password: info.password
+            })
+            .then((response) => {
+              console.log(response);
             });
 
-          navigate("/login")
+          await Swal.fire({
+            position: "top",
+            icon: "success",
+            title:
+              "Your account has been created successfully please login with your credentials to continue",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+         logOut()
+      .then()
+      .catch((error) => {
+        console.log(error.message);
+      });
 
-        setLoadingOtp(false);
+    navigate("/login");
+
       })
       .catch((error) => {
+        console.log(error);
+        setLoadingOtp(false);
+        setLanding(true);
+        setShowOTPInput(false)
+        
+     
+      if(error.message.includes('captcha')){
+        return
+      }
+      if(
+        error.message.includes('too-many-requests')
+      ){
+        return
+      }
+setFirebaseError(error.message)
+        
+      });
+  }
+ 
+  const onSubmit = async(data) => {
+    if(!phoneNumber){
+      setFirebaseError("Please Enter yor Number")
+      return
+    }
+    setFirebaseError("");
+    setLoadingOtp(true);
+    
+    const info = { name: data.name, email: data.email, phone: ("+" + phoneNumber), role: "customer", password: data.password }
+   setInfo(info)
+
+    registerUser(info.email, info.password)
+      .then((result) => {
+        // const registeredUser = result.user;
+        setLanding(false)
+        setPhoneVerify(true)
+        setLoadingOtp(false);
+        updateUserProfile(info.name).then(async () => {
+          toast.success("Please verify your number");
+        });
+        
+        })
+      .catch((error) => {
+        // console.log(error.message)
         if (error.message.includes("auth/email-already-in-use")) {
           setFirebaseError(
             "Your account was previously registered. Please login to continue"
           );
-        return
         }
-        setFirebaseError(error.message)
         setLoadingOtp(false);
+        setFirebaseError(error.message)
       });
-  }
-  const onSubmit = (data) => {
-    setFirebaseError("");
-    if(!phoneNumber){
-      setFirebaseError("Please enter phone number")
-      return
-    }
-    
-    const info = { name: data.name, email: data.email, phone: ("+" + phoneNumber), role: "customer", password: data.password }
-    setInfo({...info})
-    onSignup();
-    return
-    
-    // registerUser(data.email, data.password)
-    //   .then((result) => {
-    //     // const registeredUser = result.user;
-    //     updateUserProfile(data.name).then(async () => {
-    //       await axios
-    //         .post(`http://localhost:4000/register-new-user`, {
-    //           name: data.name,
-    //           email: data.email,
-    //           role: "student",
-    //         })
-    //         .then((response) => {
-    //           console.log(response);
-    //         });
 
-    //       await Swal.fire({
-    //         position: "top",
-    //         icon: "success",
-    //         title:
-    //           "Your account has been created successfully please login to continue",
-    //         showConfirmButton: false,
-    //         timer: 1500,
-    //       });
+ 
 
-    //       logOut()
-    //         .then()
-    //         .catch((error) => {
-    //           console.log(error.message);
-    //         });
-
-    //       navigate("/login");
-    //     });
-    //   })
-    //   .catch((error) => {
-    //     // console.log(error.message)
-    //     if (error.message.includes("auth/email-already-in-use")) {
-    //       setFirebaseError(
-    //         "Your account was previously registered. Please login to continue"
-    //       );
-    //     }
-    //   });
   };
   const signUpWithGoogle = () => {
     googleSignIn()
       .then(async (result) => {
         const registeredUser = result.user;
+      
         await axios
           .post(`http://localhost:4000/register-new-user`, {
             name: registeredUser.displayName,
             email: registeredUser.email,
-            photoUrl: registeredUser.photoURL,
-            role: "student",
+            role: "customer",
+            phone: registerUser.phoneNumber ? registerUser.phoneNumber : ""
+
           })
           .then((response) => {
             console.log(response);
@@ -185,9 +220,7 @@ const Register = () => {
         console.log("error", error.message);
       });
   };
-  const [showPassword, setShowPassword] = useState(false);
-  const [showPassConfirm, setShowPassConfirm] = useState(false);
-  const password = watch("password");
+  
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-900 flex justify-center">
@@ -233,7 +266,7 @@ const Register = () => {
 
               <div className="my-12 border-b text-center">
                 <div className="leading-none px-2 inline-block text-sm text-gray-600 tracking-wide font-medium bg-white transform translate-y-1/2">
-                  Or sign up with email and phone number
+                  Or Register manually
                 </div>
               </div>
               <div className="text-center mb-4">
@@ -241,11 +274,66 @@ const Register = () => {
                   {firebaseError}
                 </span>
               </div>
+             
+             { phoneVerify &&
+                <>
+                <div className="mt-4 my-4">
+                  <p className="font-semibold mb-4"> please verify your number</p>
+                  <PhoneInput country={"bd"}
+                 required
+                  value={phoneNumber} onChange={setPhoneNumber} />
+                  </div>
+                  <button  onClick={onSignup} className="mt-5 tracking-wide font-semibold bg-violet-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none">
+                  {loadingOtp && (
+      <CgSpinner size={20} className="mt-1 animate-spin" />)}
+  <span className="ml-3">Verify Phone</span>
+                  </button>
+                </>
+             }
+              
+           {
+            showOTPInput && <>
+            <div className="bg-white text-indigo-500 w-fit mb-4 mx-auto p-4 rounded-full">
+              <BsFillShieldLockFill size={30} />
+            </div>
+            <label
+              htmlFor="otp"
+              className="font-bold text-xl text-slate-900 text-center"
+            >
+              Enter your OTP
+            </label>
+           <div className="mt-2">
+           <OtpInput
+              value={otp}
+              onChange={setOtp}
+              OTPLength={6}
+              otpType="number"
+              disabled={false}
+              autoFocus
+              className="opt-container "
+            ></OtpInput>
+           </div>
+            <button
+              onClick={onOTPVerify}
+              className="mt-5 tracking-wide font-semibold bg-blue-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none"
+            >
+              {loadingOtp && (
+                <CgSpinner size={20} className="mt-1 animate-spin" />
+              )}
+              <span>Verify OTP</span>
+            </button>
+          </>
+           } 
+              
+              
               <form
                 onSubmit={handleSubmit(onSubmit)}
                 className="mx-auto max-w-xs"
               >
-                <input
+                {
+                  landing &&
+                   <>
+                  <input
                   className="w-full px-8 py-4 mb-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
                   type="text"
                   name="name"
@@ -261,162 +349,130 @@ const Register = () => {
                     <BiError /> Please Enter your Name
                   </p>
                 )}
-                <input
-                  className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
-                  type="text"
-                  name="email"
-                  placeholder="Email"
-                  {...register("email", {
-                    required: "Email is required.",
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: "Invalid email address.",
-                    },
-                  })}
-                  aria-invalid={errors.email ? "true" : "false"}
-                />
-                {errors?.email && (
-                  <p
-                    className="pl-1 pt-2 flex items-center gap-2 text-base text-red-500"
-                    role="alert"
-                  >
-                    <BiError /> {errors.email.message}
-                  </p>
-                )}
-
-                <div className="relative">
-                  <input
-                    className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                    type={showPassword === false ? "password" : "text"}
-                    name="password"
-                    placeholder="Password"
-                    {...register("password", {
-                      required: "Password is required.",
+                   <input
+                     className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white"
+                     type="text"
+                     name="email"
+                     placeholder="Email"
+                     {...register("email", {
+                       required: "Email is required.",
+                       pattern: {
+                         value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                         message: "Invalid email address.",
+                       },
+                     })}
+                     aria-invalid={errors.email ? "true" : "false"}
+                   />
+                   {errors?.email && (
+                     <p
+                       className="pl-1 pt-2 flex items-center gap-2 text-base text-red-500"
+                       role="alert"
+                     >
+                       <BiError /> {errors.email.message}
+                     </p>
+                   )}
+   
+                   <div className="relative">
+                     <input
+                       className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
+                       type={showPassword === false ? "password" : "text"}
+                       name="password"
+                       placeholder="Password"
+                       {...register("password", {
+                         required: "Password is required.",
+                        
+                         validate: (value) => {
+                           const hasSpecialCharacter =
+                             /^(?=.*[!@#$%^&*()_\-+=|\\[\]{};:'",.<>\/?]).*$/.test(
+                               value
+                             );
+                           const hasCapitalLetter = /^(?=.*[A-Z]).*$/.test(value);
+                           if (!hasCapitalLetter) {
+                             return "Password must have a capital letter.";
+                           }
+                           if (!hasSpecialCharacter) {
+                             return "Password must have a special character.";
+                           }
+                           return true;
+                         },
+                         minLength: {
+                           value: 6,
+                           message: "Password must be at least 6 characters",
+                         },
+                       })}
+                     />
+   
+                     <div className="cursor-pointer text-2xl absolute right-3 top-9 z-10">
+                       {showPassword === false ? (
+                         <AiFillEye
+                           onClick={() => setShowPassword(!showPassword)}
+                         />
+                       ) : (
+                         <AiFillEyeInvisible
+                           onClick={() => setShowPassword(!showPassword)}
+                         />
+                       )}
+                     </div>
+                     {errors?.password?.type === "required" ||
+                     errors?.password?.type === "validate" ||
+                     errors?.password?.type === "minLength" ? (
+                       <p
+                         className="pl-1 pt-2 flex items-center gap-2 text-base text-red-500"
+                         role="alert"
+                       >
+                         <BiError /> {errors?.password?.message}
+                       </p>
+                     ) : null}
+   
                      
-                      validate: (value) => {
-                        const hasSpecialCharacter =
-                          /^(?=.*[!@#$%^&*()_\-+=|\\[\]{};:'",.<>\/?]).*$/.test(
-                            value
-                          );
-                        const hasCapitalLetter = /^(?=.*[A-Z]).*$/.test(value);
-                        if (!hasCapitalLetter) {
-                          return "Password must have a capital letter.";
-                        }
-                        if (!hasSpecialCharacter) {
-                          return "Password must have a special character.";
-                        }
-                        return true;
-                      },
-                      minLength: {
-                        value: 6,
-                        message: "Password must be at least 6 characters",
-                      },
-                    })}
-                  />
-
-                  <div className="cursor-pointer text-2xl absolute right-3 top-9 z-10">
-                    {showPassword === false ? (
-                      <AiFillEye
-                        onClick={() => setShowPassword(!showPassword)}
-                      />
-                    ) : (
-                      <AiFillEyeInvisible
-                        onClick={() => setShowPassword(!showPassword)}
-                      />
-                    )}
-                  </div>
-                  {errors?.password?.type === "required" ||
-                  errors?.password?.type === "validate" ||
-                  errors?.password?.type === "minLength" ? (
-                    <p
-                      className="pl-1 pt-2 flex items-center gap-2 text-base text-red-500"
-                      role="alert"
-                    >
-                      <BiError /> {errors?.password?.message}
-                    </p>
-                  ) : null}
-
-                  
-                </div>
-
-                <div className="relative">
-                  <input
-                    className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
-                    type={showPassConfirm === false ? "password" : "text"}
-                    name="confirmPassword"
-                    placeholder="Confirm Password"
-                    {...register("confirmPassword", {
-                      required: "Please Confirm your password",
-                      validate: (value) =>
-                        value === password || "Passwords do not match.",
-                    })}
-                  />
-                  <div className="cursor-pointer text-2xl absolute right-3 top-9 z-10">
-                    {showPassConfirm === false ? (
-                      <AiFillEye
-                        onClick={() => setShowPassConfirm(!showPassConfirm)}
-                      />
-                    ) : (
-                      <AiFillEyeInvisible
-                        onClick={() => setShowPassConfirm(!showPassConfirm)}
-                      />
-                    )}
-                  </div>
-                  {errors?.confirmPassword?.type === "required" ||
-                  errors?.confirmPassword?.type === "validate" ? (
-                    <p
-                      className="pl-1 pt-2 flex items-center gap-2 text-base text-red-500"
-                      role="alert"
-                    >
-                      <BiError /> {errors?.confirmPassword?.message}
-                    </p>
-                  ) : null}
-                </div>
-                <>
-                
-               
+                   </div>
+   
+                   <div className="relative">
+                     <input
+                       className="w-full px-8 py-4 rounded-lg font-medium bg-gray-100 border border-gray-200 placeholder-gray-500 text-sm focus:outline-none focus:border-gray-400 focus:bg-white mt-5"
+                       type={showPassConfirm === false ? "password" : "text"}
+                       name="confirmPassword"
+                       placeholder="Confirm Password"
+                       {...register("confirmPassword", {
+                         required: "Please Confirm your password",
+                         validate: (value) =>
+                           value === password || "Passwords do not match.",
+                       })}
+                     />
+                     <div className="cursor-pointer text-2xl absolute right-3 top-9 z-10">
+                       {showPassConfirm === false ? (
+                         <AiFillEye
+                           onClick={() => setShowPassConfirm(!showPassConfirm)}
+                         />
+                       ) : (
+                         <AiFillEyeInvisible
+                           onClick={() => setShowPassConfirm(!showPassConfirm)}
+                         />
+                       )}
+                     </div>
+                     {errors?.confirmPassword?.type === "required" ||
+                     errors?.confirmPassword?.type === "validate" ? (
+                       <p
+                         className="pl-1 pt-2 flex items-center gap-2 text-base text-red-500"
+                         role="alert"
+                       >
+                         <BiError /> {errors?.confirmPassword?.message}
+                       </p>
+                     ) : null}
+                   </div>
+                   <>
                 <div className="mt-4 my-4">
-                <PhoneInput country={"bd"}
-               required
-                value={phoneNumber} onChange={setPhoneNumber} />
-                </div>
-                
-              </>
-                {
-
-showOTP ? (
-  <>
-    <div className="bg-white text-indigo-500 w-fit mx-auto p-4 rounded-full">
-      <BsFillShieldLockFill size={30} />
-    </div>
-    <label
-      htmlFor="otp"
-      className="font-bold text-xl text-slate-900 text-center"
-    >
-      Enter your OTP
-    </label>
-   <div className="mt-2">
-   <OtpInput
-      value={otp}
-      onChange={setOtp}
-      OTPLength={6}
-      otpType="number"
-      disabled={false}
-      autoFocus
-      className="opt-container "
-    ></OtpInput>
-   </div>
-    <button
-      onClick={onOTPVerify}
-      className="mt-5 tracking-wide font-semibold bg-blue-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none"
-    >
-      {loadingOtp && (
-        <CgSpinner size={20} className="mt-1 animate-spin" />
-      )}
-      <span>Verify OTP</span>
-    </button>
-  </>
-) : <button className="mt-5 tracking-wide font-semibold bg-violet-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none">
+                  <PhoneInput country={"bd"}
+                 required
+                  value={phoneNumber} onChange={setPhoneNumber} />
+                  </div>
+                  {/* <button  onClick={onSignup} className="mt-5 tracking-wide font-semibold bg-violet-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none">
+                  {loadingOtp && (
+      <CgSpinner size={20} className="mt-1 animate-spin" />)}
+  <span className="ml-3">Verify Phone</span>
+                  </button> */}
+                </>
+                   <button className="mt-5 tracking-wide font-semibold bg-violet-500 text-gray-100 w-full py-4 rounded-lg hover:bg-indigo-700 active:scale-[.98] ease-in-out transform active:duration-100 transition-all hover:scale-[1.01] flex items-center justify-center focus:shadow-outline focus:outline-none">
                   
 {loadingOtp ? (
     <CgSpinner size={20} className="mt-1 animate-spin" />)
@@ -435,10 +491,18 @@ showOTP ? (
   </svg>
 
 }
-  <span className="ml-3">Sign Up</span>
+  <span className="ml-3">Register</span>
 </button>
-
+                   </>
                 }
+                
+                
+               
+                
+
+
+
+                
 
                 
                 <p className="mt-6 text-base text-gray-600 text-center font-semibold">
