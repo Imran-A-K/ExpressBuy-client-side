@@ -114,7 +114,7 @@ setFirebaseError(error.message)
         
         toast.success("OTP verified successfully!");
         await axios
-            .post(`http://localhost:4000/register-new-user`, {
+            .post(`https://express-buy-server.vercel.app/register-new-user`, {
               name: info.name,
               email: info.email,
               role: info.role,
@@ -204,7 +204,7 @@ setFirebaseError(error.message)
         const registeredUser = result.user;
       
         await axios
-          .post(`http://localhost:4000/register-new-user`, {
+          .post(`https://express-buy-server.vercel.app/register-new-user`, {
             name: registeredUser.displayName,
             email: registeredUser.email,
             role: "customer",

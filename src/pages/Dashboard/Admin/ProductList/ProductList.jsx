@@ -28,7 +28,7 @@ const ProductList = () => {
     useEffect(() => {
       async function fetchData() {
         const response = await fetch(
-          `http://localhost:4000/newest-products?page=${currentPage}&limit=${itemsPerPage}`
+          `https://express-buy-server.vercel.app/newest-products?page=${currentPage}&limit=${itemsPerPage}`
         );
         const data = await response.json();
         setProducts(data);

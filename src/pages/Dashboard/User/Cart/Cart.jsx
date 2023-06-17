@@ -26,7 +26,7 @@ const Cart = () => {
       confirmButtonText: 'Yes, I am sure!'
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosBase.delete(`http://localhost:4000/customer-selected-product?id=${id}`)
+        axiosBase.delete(`https://express-buy-server.vercel.app/customer-selected-product?id=${id}`)
         .then(async(response) => {
           if(response.data.deletedCount>0){
           await Swal.fire(
@@ -55,7 +55,7 @@ const Cart = () => {
       confirmButtonText: 'Yes, I am sure!'
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosBase.delete(`http://localhost:4000/customer-cart-products?customerEmail=${user?.email}`)
+        axiosBase.delete(`https://express-buy-server.vercel.app/customer-cart-products?customerEmail=${user?.email}`)
         .then(async(response) => {
           if(response.data.deletedCount>0){
           await Swal.fire(
@@ -96,7 +96,7 @@ const Cart = () => {
       confirmButtonText: 'Yes, I am sure!'
     }).then((result) => {
       if (result.isConfirmed) {
-        axiosBase.post(`http://localhost:4000/confirm-order?customerEmail=${user?.email}`,customerOrder)
+        axiosBase.post(`https://express-buy-server.vercel.app/confirm-order?customerEmail=${user?.email}`,customerOrder)
         .then(async(response) => {
           if(response.data.insertedCount>0){
           await Swal.fire(

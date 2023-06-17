@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import useAuthentication from "./useAuthentication";
 const axiosBase = axios.create({
-    baseURL: 'http://localhost:4000', 
+    baseURL: 'https://express-buy-server.vercel.app', 
   });
 
 const useAxiosInterceptor = () => {

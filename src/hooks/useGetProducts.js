@@ -4,7 +4,7 @@ const useGetTotalProducts = () => {
     const { refetch, data : totalProducts = [] } = useQuery({
         queryKey: ['total-products'],
         queryFn: async () => {
-            const response = await axios.get(`http://localhost:4000/totalProducts`)
+            const response = await axios.get(`https://express-buy-server.vercel.app/totalProducts`)
             return response.data.totalProducts;
           }
           

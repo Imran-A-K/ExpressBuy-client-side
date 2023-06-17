@@ -61,7 +61,7 @@ const Login = () => {
         
       
         await axios
-          .post(`http://localhost:4000/register-new-user`, {
+          .post(`https://express-buy-server.vercel.app/register-new-user`, {
             name: googleUser.displayName,
             email: googleUser.email,
             role: "customer",

@@ -54,7 +54,7 @@ const AuthenticationProviders = ({ children }) => {
         setUser(currentUser)
         
       if(currentUser){
-        await axios.post('http://localhost:4000/jwt', { email: currentUser.email })
+        await axios.post('https://express-buy-server.vercel.app/jwt', { email: currentUser.email })
         .then(data => {
           localStorage.setItem('access-token', data.data.token)
           setQueryEnabler(true)
