@@ -3,16 +3,43 @@ import useCart from '../../../../hooks/useCart';
 import ReviewOrder from '../../../../Components/Cart/ReviewOrder/ReviewOrder';
 import useTotalCartPrice from '../../../../hooks/useTotalCartPrice';
 import { FaCheck, FaTrashAlt } from 'react-icons/fa';
+import useAxiosInterceptor from '../../../../hooks/useAxiosInterceptor';
+import Swal from 'sweetalert2';
 
 const Cart = () => {
   const [cart, refetch] =useCart()
   // console.log(cart)
   const [ cartDetails, reload] = useTotalCartPrice()
-  console.log(cartDetails)
+  const [axiosBase] = useAxiosInterceptor(); 
+  // console.log(cartDetails)
+  
   const handleRemoveFromCart = (id) =>{
-      // const remaining = cart.filter(product => product._id !== id);
-      // setCart(remaining);
-      // removeFromDb(id);
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "This product will be deleted from your cart!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#d33',
+      confirmButtonText: 'Yes, I am sure!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        axiosBase.delete(`http://localhost:4000/customer-selected-product?id=${id}`)
+        .then(async(response) => {
+          if(response.data.deletedCount>0){
+          await Swal.fire(
+          'Deleted!',
+          'The product has been deleted from your cart.',
+          'success'
+        )
+        refetch();
+        reload();
+          }
+          
+        })
+        
+      }
+    }) 
 
   }
   const handleClearCart = ()=>{
