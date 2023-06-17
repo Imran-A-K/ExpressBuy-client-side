@@ -22,7 +22,7 @@ const AdminDashBoard = () => {
         <li className="pt-10 "><NavLink to="/admin-dashboard/overview"><FaThLarge></FaThLarge> Overview</NavLink></li>
         <li className=""><NavLink to="/admin-dashboard/orders"><FaOpencart></FaOpencart> Orders</NavLink></li>
         <li className=""><NavLink to="/admin-dashboard/product-list"><FaListAlt></FaListAlt> Product List</NavLink></li>
-        <li className=""><NavLink to="/admin-dashboard/add-a-product"><FaRegPlusSquare></FaRegPlusSquare> Add Product</NavLink></li>
+        
       
       <li>
         <NavLink to="/admin-dashboard/users"><FaUserCircle></FaUserCircle> Users

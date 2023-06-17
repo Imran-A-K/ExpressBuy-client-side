@@ -35,12 +35,15 @@ const Navbar = () => {
   const [userRole] = useRoleGetter()
   const navigate = useNavigate();
   let isCustomer;
-  const isStudent =true;
+  let isAdmin ;
   if(userRole === "customer"){
     isCustomer = true
   }
+  if(userRole === "admin"){
+    isAdmin = true
+  }
 
-  const isAdmin = true
+  
   const handleCartNav = () => {
     if(!user){
       Swal.fire("Please login or register for viewing Cart ")
@@ -150,14 +153,10 @@ Admin
           <Link to="/login">
               <button className="btn bg-black max-sm:hidden text-slate-200 -mt-1 hover:bg-gray-800">
               Login
-                {/* <div className="flex gap-4 pb-3 items-center justify-center">
-                   <FaUserPlus />
-                </div> */}
+                
               </button>
             </Link>
-          // <div className="flex mt-4">
-            
-          // </div>
+          
         )}
       </div>
 
@@ -175,9 +174,9 @@ Admin
           className="absolute right-4 top-10 cursor-pointer"
         />
         <div className="flex gap-4 items-center ml-4 mt-10">
-          <FaUserNinja className="text-2xl text-violet-600"></FaUserNinja>
+          
           <h1 className="text-2xl sm:text-3xl lg:text-3xl px-2">
-            Camp <span className="font-bold text-violet-600">Ninja</span>
+            Express <span className="font-bold text-violet-600">Buy</span>
           </h1>
         </div>
         <nav>
@@ -198,11 +197,11 @@ Admin
               className={({ isActive }) =>
                 isActive ? "actiVatedTab" : "defaultTab"
               }
-              to="/classes"
+              to="/shop"
               onClick={() => setNav(!nav)}
             >
               <li className="text-xl py-4 flex">
-                <FaChalkboard size={25} className="mr-4" /> Classes
+                 Shop
               </li>
             </NavLink>
            {
@@ -211,18 +210,19 @@ Admin
               className={({ isActive }) =>
                 isActive ? "actiVatedTab" : "defaultTab"
               }
-              to="/admin-dashboard/manage-users"
+              to="/admin-dashboard/users"
               onClick={() => setNav(!nav)}
             >
-              <li className="text-xl py-4 flex">
-                <FaListAlt size={25} className="mr-4" /> Dashboard
-              </li>
+              <button  className="btn bg-slate-100 gap-2">
+Admin
+  <div className="badge badge-secondary"><FaFlipboard></FaFlipboard></div>
+</button>
             </NavLink>
             )
            } 
            
            {
-            user && isStudent && (
+            userRole !=='admin'&& (
               <NavLink
               className={({ isActive }) =>
                 isActive ? "actiVatedTab" : "defaultTab"
@@ -230,9 +230,10 @@ Admin
               to="/student-dashboard/my-selected-classes"
               onClick={() => setNav(!nav)}
             >
-              <li className="text-xl py-4 flex">
-                <FaListAlt size={25} className="mr-4" /> Dashboard
-              </li>
+              <button onClick={handleCartNav} className="btn bg-slate-100 gap-2">
+<FaShoppingCart></FaShoppingCart>
+  <div className="badge badge-secondary">+{cart?.length || 0}</div>
+</button>
             </NavLink>
             )
            } 
