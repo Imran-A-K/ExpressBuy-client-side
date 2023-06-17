@@ -1,9 +1,15 @@
 import React, { useEffect, useState } from 'react'
 import useGetTotalProducts from '../../hooks/useGetProducts';
 import ProductCard from '../../Components/Shop/ProductCard';
+import useAuthentication from '../../hooks/useAuthentication';
+import Swal from 'sweetalert2';
+import useAxiosInterceptor from '../../hooks/useAxiosInterceptor';
 
 const Shop = () => {
   const [totalProducts, refetch] = useGetTotalProducts();
+  const { user} = useAuthentication()
+  const [axiosBase] = useAxiosInterceptor()
+  // console.log(user)
   // console.log(totalProducts)
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(0);
@@ -32,8 +38,39 @@ console.log(products)
     fetchData();
   }, [currentPage, itemsPerPage]);
 
-  const handleAddToCart = (product) => {
-
+  const handleAddToCart = async(product) => {
+    if(!user){
+      Swal.fire("Please login or register to for adding the product to Cart")
+      return
+    }
+    const selectedProduct ={
+      customer: user?.displayName,
+      customerEmail: user?.email,
+      productId:product._id,
+      category: product.category,
+      img: product.img,
+      productName: product.name,
+      seller: product.seller,
+      shipping: product.shipping,
+      price:product.price
+    }
+    await axiosBase.post('/add-to-cart',selectedProduct)
+    .then(response => {
+  
+        if(response.data.insertedId){
+            Swal.fire({
+                title: 'Your product has been added to cart successfully please go to Cart to review order',
+                showClass: {
+                  popup: 'animate__animated animate__fadeInDown'
+                },
+                hideClass: {
+                  popup: 'animate__animated animate__fadeOutUp'
+                }
+              })
+            
+        }
+    })
+    .catch(error => console.log(error.message))
   }
   const handleClearCart = (phone) => {
     
