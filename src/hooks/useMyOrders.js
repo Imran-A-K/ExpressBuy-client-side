@@ -1,17 +1,17 @@
-import { useQuery, } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import useAuthentication from "./useAuthentication";
 import useAxiosInterceptor from "./useAxiosInterceptor";
 
-const useTotalCartPrice = () => {
+const useMyOrders = () => {
     const { user, queryEnabler } = useAuthentication()
     const [axiosBase] = useAxiosInterceptor(); // calling the custom hook with axios interceptor
     // here i have changed the name of the data field by destructuring and set it as cart for useQuery
-    const { refetch : reload,data: cartDetails = {}} = useQuery({
+    const { refetch : reload,data: orders = []} = useQuery({
      
-      queryKey: ['cart-total-price', user?.mail],
+      queryKey: ['user-orders', user?.mail],
       enabled: queryEnabler,                      
       queryFn: async () => {
-        const response = await axiosBase(`/carts/user-cart-products-total-price?customerEmail=${user?.email}`)
+        const response = await axiosBase(`/my-orders?customerEmail=${user?.email}`)
         // console.log(response)
         return response.data;
       },
@@ -19,7 +19,7 @@ const useTotalCartPrice = () => {
   
    
     
-    return [ cartDetails, reload]
+    return [ orders, reload]
 }
 
-export default useTotalCartPrice
+export default useMyOrders
